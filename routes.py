@@ -1,3 +1,4 @@
+from sqlalchemy.sql.functions import user
 import api 
 from flask import Flask, jsonify, request
  
@@ -20,8 +21,23 @@ def get_user(id):
                             "Prenom":result.prenom,
                             "email":result.mail,
                             "Date de naissance": result.birth_date,
-                            "Code Postal": result.postal_code}
+                            "Ville": result.id_city,
+                            "Categorie": result.id_specific_category}
                         )
+    return jsonify(status="False")
+
+@app.route('/api/userSearch/<id_city>/<id_specific_category>/<available>', methods=['GET'])
+def get_user_search(id_city, id_specific_category, available):
+    result = api.get_user_by_search(id_city, id_specific_category, available)
+    print(result)
+    if result:
+        return jsonify(status="True", 
+                    result= [
+                        {
+                            "Nom":user.nom,
+                            "Prenom":user.prenom,
+                            "Date de naissance": user.birth_date,                        } 
+                        for user in result.all() ])
     return jsonify(status="False")
 
 @app.route('/api/user/<id>', methods=['PUT'])
